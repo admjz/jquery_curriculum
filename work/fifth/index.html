@@ -104,9 +104,11 @@
           if(value === 'all') {
             $('.list').children('li').show();
           } else {
-            $('.list').children('li').each(function(index, element) {
-              if(value == $(element).data('category-type')) {
-                $(element).show();
+            $('.list').children('li').each(function(index, listItem) {
+              if(value == $(listItem).data('category-type')) {
+                $(listItem).show();
+                console.log(index);
+                console.log(listItem);
               }
             });
           }
