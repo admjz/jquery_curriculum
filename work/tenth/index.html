@@ -26,64 +26,67 @@
     </div>
     <script src="../../common/js/jquery.js"></script>
     <script>
-      // 楽天ブックスの総合検索APIを使って製作してください。
-      // answerの挙動を良く見てね！
-      //
-      // 下記URLにAPIの仕様が載ってるいので、ブラウザで開いて参考にしてください。
-      // https://webservice.rakuten.co.jp/api/bookstotalsearch/
-      //
-      //
-      // [使うメソッド]
-      // $.each(配列, function functionName() {}) 配列に対しての繰り返し処理
-      // $.ajax({}) 外部ファイルやURLに対してデータをリクエストすることができます。
-      // 以下は今回使う$.ajaxの基本的な形です。
-      //
-      // $.ajax({
-      //   url: 'https://app.rakuten.co.jp/services/api/BooksTotal/Search/20130522',
-      //   type: 'GET',
-      //   datatype: 'json',
-      //   data: {
-      //     // 「区分:サービス固有パラメーター」を確認して、必要な情報をdata内に入れましょう。
-      //     applicationId: '1019399324990976605', // (今回はこのIDを使用してください) ※IDは他サイト等には絶対に転載しないでください
-      //     booksGenreId: '001'
-      //   },
-      // }).done(function(data) {
-      //   // この中にデータ取得後の動きを記述していきます。
-      //   console.log(data);
-      // });
-      //
-      //
-      // $.ajaxによってデータが取得できたら、必要なデータ(作品名とか作者名とか)を取得します。
-      // 取得できたらHTMLに<ul class='lists'></ul>を用意しているので、下のテンプレに沿ってデータを入れ込みましょう。
-      // <li class='lists__item'>
-      //  <div class='lists__item__inner'>
-      //    <a href='' class='lists__item__link' target='_blank'>
-      //      <img src='' class='lists__item__img' alt=''>
-      //      <p class='lists__item__detail'>作品名：</p>
-      //      <p class='lists__item__detail'>作者　：</p>
-      //      <p class='lists__item__detail'>出版社：</p>
-      //    </a>
-      //  </div>
-      // </li>
-      //
-      // 取得できた書籍の件数をもとに、ページャを作成しましょう
-      // ページャの条件
-      // ├ 「前へ」と「次へ」のボタンがある
-      // ├ 1ページ目では「前へ」に、最後のページでは「次へ」にdisabledクラスをつけて非活性（使用不能）にする
-      // └ 1ページしかない場合はどちらもdisabledクラスをつけて非活性にする
-      // 
-      // ページャのテンプレート
-      // <div class="js-pager">
-      //   <ul class="btn-wrapper">
-      //     <li class="prev btn-item"><a class="btn-anchor" href="">前へ</a></li>
-      //     <li class="next btn-item"><a class="btn-anchor" href="">次へ</a></li>
-      //   </ul>
-      // </div>
-      //
-      //
+      $(function(){
+        $('.search__btn').on('click', function(){
+          var searchWord = $('.search__text__input').val();
+          Ajax(searchWord);
+        });
 
-
-
+        function Ajax(searchWord) {
+          $.ajax({
+              url: 'https://app.rakuten.co.jp/services/api/BooksTotal/Search/20130522',
+              type: 'GET',
+              datatype: 'json',
+              data: {
+                applicationId: '1019399324990976605',
+                booksGenreId: '001',
+                keyword: searchWord,
+                hits: 20,
+              },
+            }).done(function(data) {
+              console.log(data);
+              console.log(data.Items)
+              $('.lists').empty();
+              if(data.hits === 0) {
+                var errorMessage = '<div class="message">' +
+                                    "検索結果が見つかりませんでした。" +
+                                    '<br>' +
+                                    "別のキーワードで検索して下さい。" +
+                                  '</div>'
+                $('.lists').prepend(errorMessage);
+              }else {
+                $.each(data.Items, function(index, item){
+                  var itemsInformation = '<li class="lists__item">' +
+                                            '<div class="lists__item__inner">' +
+                                                '<a href="" class="lists__item__link" target="_blank">' +
+                                                  '<img src='+ data.Items[index].Item.largeImageUrl +' class=lists__item__img alt="">' +
+                                                  '<p class="lists__item__detail">作品名：'+ item.Item.title +' </p>' +
+                                                  '<p class="lists__item__detail">作者　：'+ item.Item.author +' </p>' +
+                                                  '<p class="lists__item__detail">出版社：'+ item.Item.publisherName +' </p>' +
+                                                '</a>' +
+                                            '</div>' +
+                                            '</li>'
+                  $('.lists').prepend(itemsInformation);
+                })
+              }
+            });
+            // 取得できた書籍の件数をもとに、ページャを作成しましょう
+            // ページャの条件
+            // ├ 「前へ」と「次へ」のボタンがある
+            // ├ 1ページ目では「前へ」に、最後のページでは「次へ」にdisabledクラスをつけて非活性（使用不能）にする
+            // └ 1ページしかない場合はどちらもdisabledクラスをつけて非活性にする
+            //
+            // ページャのテンプレート
+            // <div class="js-pager">
+            //   <ul class="btn-wrapper">
+            //     <li class="prev btn-item"><a class="btn-anchor" href="">前へ</a></li>
+            //     <li class="next btn-item"><a class="btn-anchor" href="">次へ</a></li>
+            //   </ul>
+            // </div>
+            //
+            //
+        }
+      });
     </script>
   </body>
 </html>
