@@ -28,64 +28,100 @@
     <script>
       $(function(){
         $('.search__btn').on('click', function(){
+          $('.lists').empty();
+          $('.js-pager').remove();
           var searchWord = $('.search__text__input').val();
-          Ajax(searchWord);
+          if(searchWord === "" || searchWord.match(/^([a-zA-Z0-9]{0,1})$/)) {
+            var noWordMessage = '<div class="message">' +
+                                 "検索文字が空、もしくは半角英数1文字になっています" +
+                                '</div>'
+            $('.lists').prepend(noWordMessage);
+          }else {
+            $.ajax({
+                url: 'https://app.rakuten.co.jp/services/api/BooksTotal/Search/20130522',
+                type: 'GET',
+                datatype: 'json',
+                data: {
+                  applicationId: '1019399324990976605',
+                  booksGenreId: '001',
+                  keyword: searchWord,
+                  hits: 20,
+                  page: 1
+                },
+              })
+              .done(function(data) {
+                Success(data);
+              })
+              .fail(function(){
+                Fail();
+              })
+          }
         });
 
-        function Ajax(searchWord) {
-          $.ajax({
-              url: 'https://app.rakuten.co.jp/services/api/BooksTotal/Search/20130522',
-              type: 'GET',
-              datatype: 'json',
-              data: {
-                applicationId: '1019399324990976605',
-                booksGenreId: '001',
-                keyword: searchWord,
-                hits: 20,
-              },
-            }).done(function(data) {
-              console.log(data);
-              console.log(data.Items)
-              $('.lists').empty();
-              if(data.hits === 0) {
-                var errorMessage = '<div class="message">' +
-                                    "検索結果が見つかりませんでした。" +
-                                    '<br>' +
-                                    "別のキーワードで検索して下さい。" +
-                                  '</div>'
-                $('.lists').prepend(errorMessage);
-              }else {
-                $.each(data.Items, function(index, item){
-                  var itemsInformation = '<li class="lists__item">' +
-                                            '<div class="lists__item__inner">' +
-                                                '<a href="" class="lists__item__link" target="_blank">' +
-                                                  '<img src='+ data.Items[index].Item.largeImageUrl +' class=lists__item__img alt="">' +
-                                                  '<p class="lists__item__detail">作品名：'+ item.Item.title +' </p>' +
-                                                  '<p class="lists__item__detail">作者　：'+ item.Item.author +' </p>' +
-                                                  '<p class="lists__item__detail">出版社：'+ item.Item.publisherName +' </p>' +
-                                                '</a>' +
-                                            '</div>' +
-                                            '</li>'
-                  $('.lists').prepend(itemsInformation);
-                })
-              }
-            });
-            // 取得できた書籍の件数をもとに、ページャを作成しましょう
-            // ページャの条件
-            // ├ 「前へ」と「次へ」のボタンがある
-            // ├ 1ページ目では「前へ」に、最後のページでは「次へ」にdisabledクラスをつけて非活性（使用不能）にする
-            // └ 1ページしかない場合はどちらもdisabledクラスをつけて非活性にする
-            //
-            // ページャのテンプレート
-            // <div class="js-pager">
-            //   <ul class="btn-wrapper">
-            //     <li class="prev btn-item"><a class="btn-anchor" href="">前へ</a></li>
-            //     <li class="next btn-item"><a class="btn-anchor" href="">次へ</a></li>
-            //   </ul>
-            // </div>
-            //
-            //
-        }
+        // データ通信成功時
+        function Success(data){
+          if(data.hits === 0) {
+            var noResultMessage = '<div class="message">' +
+                                "検索結果が見つかりませんでした。" +
+                                '<br>' +
+                                "別のキーワードで検索して下さい。" +
+                              '</div>'
+            $('.lists').prepend(noResultMessage);
+          }else {
+            $.each(data.Items, function(index, item){
+              var itemsInformation = '<li class="lists__item">' +
+                                        '<div class="lists__item__inner">' +
+                                            '<a href="" class="lists__item__link" target="_blank">' +
+                                              '<img src='+ data.Items[index].Item.largeImageUrl +' class=lists__item__img alt="">' +
+                                              '<p class="lists__item__detail">作品名：'+ item.Item.title +' </p>' +
+                                              '<p class="lists__item__detail">作者　：'+ item.Item.author +' </p>' +
+                                              '<p class="lists__item__detail">出版社：'+ item.Item.publisherName +' </p>' +
+                                            '</a>' +
+                                        '</div>' +
+                                        '</li>'
+              $('.lists').prepend(itemsInformation);
+            })
+            Pagination(data);
+          }
+        };
+
+        // データ通信失敗時
+        function Fail(){
+          var errorMessage =  '<div class="message">' +
+                                "通信に失敗しました。" +
+                                '<br>' +
+                                "検索ワードや通信環境を見直しの上、再度検索して下さい。" +
+                              '</div>'
+          $('.lists').prepend(errorMessage);
+        };
+
+        // ページ機能
+        function Pagination(data){
+           // 取得できた書籍の件数をもとに、ページャを作成しましょう
+          // ページャの条件
+          // ├ 「前へ」と「次へ」のボタンがある
+          // ├ 1ページ目では「前へ」に、最後のページでは「次へ」にdisabledクラスをつけて非活性（使用不能）にする
+          // └ 1ページしかない場合はどちらもdisabledクラスをつけて非活性にする
+          var page = '<div class="js-pager">' +
+                        '<ul class="btn-wrapper">' +
+                          '<li class="prev btn-item"><a class="btn-anchor" href="#">前へ</a></li>' +
+                          '<li class="next btn-item"><a class="btn-anchor" href="#">次へ</a></li>' +
+                        '</ul>' +
+                     '</div>'
+          $('.lists').after(page);
+          if(data.hits < 20) {
+            $('.btn-item').addClass('disabled');
+          }else {
+            $('.prev').addClass('disabled');
+          }
+          $('.lists').pagination({
+              itemElement: '> .lists__item',
+              displayedPages: 20,
+              prevBtnText: '前へ',
+              nextBtnText: '次へ',
+              nextBtnClassName: '.btn-anchor',
+          });
+        };
       });
     </script>
   </body>
