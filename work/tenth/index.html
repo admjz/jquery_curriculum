@@ -27,12 +27,13 @@
     <script src="../../common/js/jquery.js"></script>
     <script>
       $(function(){
+        var searchWord;
         var pageNumber;
         // 「検索」ボタン押下時
         $('.search__btn').on('click', function() {
           $('.lists').empty();
           $('.js-pager').remove();
-          var searchWord = $('.search__text__input').val();
+          searchWord = $('.search__text__input').val();
           pageNumber = 1;
           if(searchWord === "" || searchWord.match(/^([a-zA-Z0-9]{0,1})$/)) {
             var noWordMessage = '<div class="message">' +
@@ -136,7 +137,6 @@
         // 「前」ボタン押下時
         function Prev() {
           $('.message').remove();
-          var searchWord = $('.search__text__input').val();
           if($('.prev').hasClass('disabled')) {
             return false;
           }else {
@@ -148,7 +148,6 @@
         // 「次」ボタン押下時
         function Next() {
           $('.message').remove();
-          var searchWord = $('.search__text__input').val();
           if($('.next').hasClass('disabled')) {
             var lastPageMessage = '<div class="message">' +
                                     "これ以上はありません。"
