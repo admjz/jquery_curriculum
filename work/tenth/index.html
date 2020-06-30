@@ -63,7 +63,7 @@
           }
         });
 
-        // callAjax実行
+        // ajax通信実行
         function callAjax(searchWord, pageNumber) {
           $('.lists').empty();
           $('.js-pager').remove();
@@ -87,7 +87,7 @@
           })
         };
 
-        // データ通信成功時
+        // ajax通信成功時
         function ajaxConnect_Success(data) {
           if (data.hits === 0) {
             var noResultMessage = '<div class="message">' +
@@ -114,41 +114,38 @@
           }
         };
 
-        // データ通信失敗時
+        // ajax通信失敗時
         function ajaxConnect_Fail(error) {
-          // console.log(error.status)
-          $('.lists').empty();
+          var errorMessage = '';
           if (error.status === 0) {
-            var offlineMessage = '<div class="message">' +
-                                   "通信に失敗しました。インターネットの接続をご確認ください" +
-                                 '</div>'
-            $('.lists').prepend(offlineMessage);
+            errorMessage = '<div class="message">' +
+                              "通信に失敗しました。インターネットの接続をご確認ください" +
+                           '</div>'
           } else {
             if (error.status === 400) {
-            var noWordMessage = '<div class="message">' +
-                                 "検索文字が空、もしくは半角英数1文字になっています" +
-                                '</div>'
-            $('.lists').prepend(noWordMessage);
+              errorMessage = '<div class="message">' +
+                               "検索文字が空、もしくは半角英数1文字になっています" +
+                             '</div>'
             } else if (error.status === 429) {
-              var errorMessage =  '<div class="message">' +
-                                    "現在アクセスが集中しております。" +
-                                    '<br>' +
-                                    "恐れ入りますが、しばらくお時間を空けてから再度検索して下さい。" +
-                                  '</div>'
-              $('.lists').prepend(errorMessage);
+              errorMessage = '<div class="message">' +
+                                "現在アクセスが集中しております。" +
+                                '<br>' +
+                                "恐れ入りますが、しばらくお時間を空けてから再度検索して下さい。" +
+                             '</div>'
             }
           }
+          $('.lists').prepend(errorMessage);
         };
 
         // ページング用のボタン追加
         function addPageBtn(data) {
-          var pager = '<div class="js-pager">' +
-                        '<ul class="btn-wrapper">' +
-                          '<li class="prev btn-item"><a class="btn-anchor" href="#">前へ</a></li>' +
-                          '<li class="next btn-item"><a class="btn-anchor" href="#">次へ</a></li>' +
-                        '</ul>' +
-                     '</div>'
-          $('.lists').after(pager);
+          var pagerBtn = '<div class="js-pager">' +
+                            '<ul class="btn-wrapper">' +
+                              '<li class="prev btn-item"><a class="btn-anchor" href="#">前へ</a></li>' +
+                              '<li class="next btn-item"><a class="btn-anchor" href="#">次へ</a></li>' +
+                            '</ul>' +
+                         '</div>'
+          $('.lists').after(pagerBtn);
           if (data.count <= 20) {
             $('.btn-item').addClass('disabled');
           } else if (data.count > 20 && data.page == 1) {
