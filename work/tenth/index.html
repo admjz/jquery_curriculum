@@ -29,6 +29,7 @@
       $(function(){
         var searchWord = '';
         var pageNumber = null;
+        var itemsInformation = [];
         // 「検索」ボタン押下時
         $('#js-search-button').on('click', function() {
           $('.lists').empty();
@@ -97,18 +98,18 @@
             $('.lists').prepend(noResultMessage);
           } else {
             $.each(data.Items, function(index, item) {
-              var itemsInformation = '<li class="lists__item">' +
-                                        '<div class="lists__item__inner">' +
-                                            '<a href='+ item.Item.itemUrl +' class=lists__item__link target="_blank">' +
-                                              '<img src='+ item.Item.largeImageUrl +' class=lists__item__img alt="">' +
-                                              '<p class="lists__item__detail">作品名：'+ item.Item.title +' </p>' +
-                                              '<p class="lists__item__detail">作者　：'+ item.Item.author +' </p>' +
-                                              '<p class="lists__item__detail">出版社：'+ item.Item.publisherName +' </p>' +
-                                            '</a>' +
-                                        '</div>' +
-                                     '</li>'
-              $('.lists').append(itemsInformation);
+              itemsInformation[index] = '<li class="lists__item">' +
+                                          '<div class="lists__item__inner">' +
+                                              '<a href='+ item.Item.itemUrl +' class=lists__item__link target="_blank">' +
+                                                '<img src='+ item.Item.largeImageUrl +' class=lists__item__img alt="">' +
+                                                '<p class="lists__item__detail">作品名：'+ item.Item.title +' </p>' +
+                                                '<p class="lists__item__detail">作者　：'+ item.Item.author +' </p>' +
+                                                '<p class="lists__item__detail">出版社：'+ item.Item.publisherName +' </p>' +
+                                              '</a>' +
+                                          '</div>' +
+                                        '</li>'
             })
+            $('.lists').append(itemsInformation);
             addPageBtn(data);
           }
         };
