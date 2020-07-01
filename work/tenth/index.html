@@ -34,7 +34,7 @@
         $('#js-search-button').on('click', function() {
           searchWord = $('#js-search-word').val();
           pageNumber = 1;
-          callAjax(searchWord, pageNumber);
+          callAjax();
         });
 
         // 「前」ボタン押下時
@@ -43,7 +43,7 @@
             return false;
           }
           pageNumber -= 1;
-          callAjax(searchWord, pageNumber);
+          callAjax(pageNumber);
         });
 
         // 「次」ボタン押下時
@@ -56,12 +56,12 @@
             $('.lists').prepend(lastPageMessage);
           } else {
             pageNumber += 1;
-            callAjax(searchWord, pageNumber);
+            callAjax(pageNumber);
           }
         });
 
         // ajax通信実行
-        function callAjax(searchWord, pageNumber) {
+        function callAjax() {
           $('.lists').empty();
           $('.js-pager').remove();
           $.ajax({
@@ -115,8 +115,9 @@
         // ajax通信失敗時
         function ajaxConnectFail(error) {
           $('.lists').empty();
-          var errorMessage = error.status;
-          switch(errorMessage) {
+          var errorStatus = error.status;
+          var errorMessage = '';
+          switch(errorStatus) {
             case 0:
               errorMessage = "通信に失敗しました。インターネットの接続をご確認ください"
               break;
