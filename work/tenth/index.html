@@ -26,14 +26,12 @@
     </div>
     <script src="../../common/js/jquery.js"></script>
     <script>
-      $(function(){
+      $(function() {
         var searchWord = '';
         var pageNumber = null;
-        var itemsInformation = [];
+
         // 「検索」ボタン押下時
         $('#js-search-button').on('click', function() {
-          $('.lists').empty();
-          $('.js-pager').remove();
           searchWord = $('#js-search-word').val();
           pageNumber = 1;
           callAjax(searchWord, pageNumber);
@@ -43,10 +41,9 @@
         $(document).on('click', '.prev', function(event) {
           if ($('.prev').hasClass('disabled')) {
             return false;
-          } else {
-            pageNumber -= 1;
-            callAjax(searchWord, pageNumber);
           }
+          pageNumber -= 1;
+          callAjax(searchWord, pageNumber);
         });
 
         // 「次」ボタン押下時
@@ -80,23 +77,24 @@
             }
           })
           .done(function(data) {
-            ajaxConnect_Success(data);
+            ajaxConnectSuccess(data);
           })
           .fail(function(error) {
-            ajaxConnect_Fail(error);
+            ajaxConnectFail(error);
           })
         };
 
         // ajax通信成功時
-        function ajaxConnect_Success(data) {
+        function ajaxConnectSuccess(data) {
           if (data.hits === 0) {
             var noResultMessage = '<div class="message">' +
-                                "検索結果が見つかりませんでした。" +
-                                '<br>' +
-                                "別のキーワードで検索して下さい。" +
-                              '</div>'
+                                    "検索結果が見つかりませんでした。" +
+                                    '<br>' +
+                                    "別のキーワードで検索して下さい。" +
+                                  '</div>'
             $('.lists').prepend(noResultMessage);
           } else {
+            var itemsInformation = [];
             $.each(data.Items, function(index, item) {
               itemsInformation[index] = '<li class="lists__item">' +
                                           '<div class="lists__item__inner">' +
@@ -115,26 +113,26 @@
         };
 
         // ajax通信失敗時
-        function ajaxConnect_Fail(error) {
-          var errorMessage = '';
-          if (error.status === 0) {
-            errorMessage = '<div class="message">' +
-                              "通信に失敗しました。インターネットの接続をご確認ください" +
-                           '</div>'
-          } else {
-            if (error.status === 400) {
-              errorMessage = '<div class="message">' +
-                               "検索文字が空、もしくは半角英数1文字になっています" +
-                             '</div>'
-            } else if (error.status === 429) {
-              errorMessage = '<div class="message">' +
-                                "現在アクセスが集中しております。" +
-                                '<br>' +
-                                "恐れ入りますが、しばらくお時間を空けてから再度検索して下さい。" +
-                             '</div>'
-            }
+        function ajaxConnectFail(error) {
+          $('.lists').empty();
+          var errorMessage = error.status;
+          switch(errorMessage) {
+            case 0:
+              errorMessage = "通信に失敗しました。インターネットの接続をご確認ください"
+              break;
+            case 400:
+              errorMessage = "検索文字が空、もしくは半角英数1文字になっています"
+              break;
+            case 429:
+              errorMessage = "現在アクセスが集中しております。" +
+                             "<br>" +
+                             "恐れ入りますが、しばらくお時間を空けてから再度検索して下さい。"
+              break;
+            default:
+              errorMessage = "予期せぬエラーが発生しました。"
+              break;
           }
-          $('.lists').prepend(errorMessage);
+          $('.lists').prepend('<div class="message">'+ errorMessage +'</div>');
         };
 
         // ページング用のボタン追加
